@@ -4,6 +4,7 @@
 
 import numpy as np
 from numpy import pi, exp
+from pandas import cut
 from skimage import io, img_as_float32
 from skimage.transform import rescale
 import matplotlib.pyplot as plt
@@ -47,8 +48,15 @@ def gaussLP_2D_space(cutoff_sigma, scale=1):
     """
 	#########Your code here#############
     k_mid_point = 3*np.ceil(cutoff_sigma)        # set to 3 for computational ease, approx 95% energy
-                                                 # three times would be better  
-    raise NotImplementedError('Please implement `gaussLP_2D_space` function in `A1_template.py`' )
+                                                 # three times would be better
+    k = (6*cutoff_sigma) + 1
+
+    ax = np.linspace(-(k - 1) / 2., (k - 1) / 2., k)
+    gauss = np.exp(-0.5 * np.square(ax) / np.square(cutoff_sigma))
+    kernel = np.outer(gauss, gauss)
+    gauss_spatial = kernel / np.sum(kernel)
+
+    #raise NotImplementedError('Please implement `gaussLP_2D_space` function in `A1_template.py`' )
     
     return gauss_spatial
 
@@ -66,8 +74,24 @@ def spatial_dom_filter(image, filter):
     assert filter.shape[1] % 2 == 1
 
     ###YOUR CODE HERE ###
-    raise NotImplementedError('Please implement `spatial_dom_filter` function in `A1_template.py`' )
-    ###########################
+    # Save the width of the filter kernel
+    kernel_width = filter.shape[0]
+
+    # Create array of zeroes to store filtered values
+    filtered_image = np.zeros(shape=(image.shape[0], image.shape[1], image.shape[2]))
+    # Added padding to the image to account for kernel overlap
+    padding = int((kernel_width - 1) / 2)
+    padded_image = np.pad(image,
+                   ((padding, padding), (padding, padding), (0,0)))
+
+    # Iterate through the colour channels of the image
+    for z in range(image.shape[-1]):
+        channel = padded_image[:,:,z]
+        for x in range(image.shape[0]):
+            for y in range(image.shape[1]):
+                sample = channel[x:x+padding, y:y+padding]
+                filtered_image[x, y, z] = np.sum(np.multiply(sample, filter))
+    
     return filtered_image
 
 
