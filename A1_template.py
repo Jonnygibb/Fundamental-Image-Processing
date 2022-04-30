@@ -46,16 +46,29 @@ def gaussLP_2D_space(cutoff_sigma, scale=1):
         Kernel to convolve the image with.
 
     """
-	#########Your code here#############
-    k_mid_point = 3*np.ceil(cutoff_sigma)        # set to 3 for computational ease, approx 95% energy
-                                                 # three times would be better
+    # Calcualte k from input sigma value  
     k = (6*cutoff_sigma) + 1
 
-    ax = np.linspace(-(k - 1) / 2., (k - 1) / 2., k)
-    gauss = np.exp(-0.5 * np.square(ax) / np.square(cutoff_sigma))
+    # Evenly distribute a 1D vector from negative half (k-1)/2
+    # to positive half (k-1)/2.
+    # E.g when k = 5, array = [-2, -1, 0, 1, 2].
+    # This array represents the distances from the center of the kernel
+    # to the xth or yth element of the kernel.
+    dxy = np.linspace(-(k - 1) / 2., (k - 1) / 2., k)
+    # Apply the gaussian distribution formula to the 1D vector.
+    # Square the distances from the center of the kernel and multiply
+    # by -0.5 then divide by the square of cutoff sigma as per the formula.
+    # Create a vector that is e to the power of the previous steps.
+    gauss = np.exp(-0.5 * np.square(dxy) / np.square(cutoff_sigma))
+    # Use the outer product of vectors in order to multiply the distributed
+    # vector by itself to create a 2D matrix that maintains the gaussian
+    # distribution.
     kernel = np.outer(gauss, gauss)
-    gauss_spatial = kernel / np.sum(kernel)
-    
+    # Apply the scale factor to the kernel
+    scaled_kernel = np.dot(scale, kernel)
+    # Divide the scaled kernel by it's sum to normalise the values to sum
+    # to 1.
+    gauss_spatial = scaled_kernel / np.sum(scaled_kernel)
     return gauss_spatial
 
 
