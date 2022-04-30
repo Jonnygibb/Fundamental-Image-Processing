@@ -55,8 +55,6 @@ def gaussLP_2D_space(cutoff_sigma, scale=1):
     gauss = np.exp(-0.5 * np.square(ax) / np.square(cutoff_sigma))
     kernel = np.outer(gauss, gauss)
     gauss_spatial = kernel / np.sum(kernel)
-
-    #raise NotImplementedError('Please implement `gaussLP_2D_space` function in `A1_template.py`' )
     
     return gauss_spatial
 
@@ -89,7 +87,7 @@ def spatial_dom_filter(image, filter):
         channel = padded_image[:,:,z]
         for x in range(image.shape[0]):
             for y in range(image.shape[1]):
-                sample = channel[x:x+padding, y:y+padding]
+                sample = channel[x:x+kernel_width, y:y+kernel_width]
                 filtered_image[x, y, z] = np.sum(np.multiply(sample, filter))
     
     return filtered_image
