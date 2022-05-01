@@ -4,6 +4,7 @@
 
 import numpy as np
 from numpy import pi, exp
+from pandas import cut
 from skimage import io, img_as_float32
 from skimage.transform import rescale
 import matplotlib.pyplot as plt
@@ -45,11 +46,29 @@ def gaussLP_2D_space(cutoff_sigma, scale=1):
         Kernel to convolve the image with.
 
     """
-	#########Your code here#############
-    k_mid_point = 3*np.ceil(cutoff_sigma)        # set to 3 for computational ease, approx 95% energy
-                                                 # three times would be better  
-    raise NotImplementedError('Please implement `gaussLP_2D_space` function in `A1_template.py`' )
-    
+    # Calcualte k from input sigma value  
+    k = (6*cutoff_sigma) + 1
+
+    # Evenly distribute a 1D vector from negative half (k-1)/2
+    # to positive half (k-1)/2.
+    # E.g when k = 5, array = [-2, -1, 0, 1, 2].
+    # This array represents the distances from the center of the kernel
+    # to the xth or yth element of the kernel.
+    dxy = np.linspace(-(k - 1) / 2., (k - 1) / 2., k)
+    # Apply the gaussian distribution formula to the 1D vector.
+    # Square the distances from the center of the kernel and multiply
+    # by -0.5 then divide by the square of cutoff sigma as per the formula.
+    # Create a vector that is e to the power of the previous steps.
+    gauss = np.exp(-0.5 * np.square(dxy) / np.square(cutoff_sigma))
+    # Use the outer product of vectors in order to multiply the distributed
+    # vector by itself to create a 2D matrix that maintains the gaussian
+    # distribution.
+    kernel = np.outer(gauss, gauss)
+    # Apply the scale factor to the kernel
+    scaled_kernel = np.dot(scale, kernel)
+    # Divide the scaled kernel by it's sum to normalise the values to sum
+    # to 1.
+    gauss_spatial = scaled_kernel / np.sum(scaled_kernel)
     return gauss_spatial
 
 
@@ -66,8 +85,24 @@ def spatial_dom_filter(image, filter):
     assert filter.shape[1] % 2 == 1
 
     ###YOUR CODE HERE ###
-    raise NotImplementedError('Please implement `spatial_dom_filter` function in `A1_template.py`' )
-    ###########################
+    # Save the width of the filter kernel
+    kernel_width = filter.shape[0]
+
+    # Create array of zeroes to store filtered values
+    filtered_image = np.zeros(shape=(image.shape[0], image.shape[1], image.shape[2]))
+    # Added padding to the image to account for kernel overlap
+    padding = int((kernel_width - 1) / 2)
+    padded_image = np.pad(image,
+                   ((padding, padding), (padding, padding), (0,0)))
+
+    # Iterate through the colour channels of the image
+    for z in range(image.shape[-1]):
+        channel = padded_image[:,:,z]
+        for x in range(image.shape[0]):
+            for y in range(image.shape[1]):
+                sample = channel[x:x+kernel_width, y:y+kernel_width]
+                filtered_image[x, y, z] = np.sum(np.multiply(sample, filter))
+    
     return filtered_image
 
 
