@@ -84,7 +84,6 @@ def spatial_dom_filter(image, filter):
     assert filter.shape[0] % 2 == 1
     assert filter.shape[1] % 2 == 1
 
-    ###YOUR CODE HERE ###
     # Save the width of the filter kernel
     kernel_width = filter.shape[0]
 
@@ -109,13 +108,27 @@ def spatial_dom_filter(image, filter):
 
 #%%
 def gaussLP_2D_freq(cutoff_freq, k_size, scale_parmeter = 1):
-    
     """
 	The function will take three arguments cutoff_freq, k_size, scale_parmeter, and return the gauss_2d array of size k_size, representing the Gaussian filter in the frequency domain.
 	"""
-	
-	########Your code here#############
-    raise NotImplementedError('Please implement `gaussLP_2D_freq` function in `A1_template.py`' )
+    cutoff_freq = ((k_size[0] + k_size[1]) / 2 ) / (2 * pi * cutoff_freq)
+
+    # Simplify the k_size into row number and column number
+    rows, columns  = k_size[0], k_size[1]
+    # Create a matrix of zeros of equal size to the image/filter
+    distance_matrix = np.zeros((rows, columns))
+    # Iterate over each cell of the zero matrix
+    for row in range(rows):
+        for column in range(columns):
+            # Set each cell equal to the pythagorian distance from the center of the matrix
+            distance_matrix[row, column] = np.sqrt((row - rows / 2)**2 + (column - columns / 2)**2)
+
+    gauss_2d = np.zeros((rows, columns))
+    for i in range(rows):
+        for j in range(columns):
+            gauss_2d[i,j] = scale_parmeter * np.exp(-((distance_matrix[i,j]**2)/(2*cutoff_freq**2)))
+    plt.subplot(121),plt.imshow(gauss_2d)
+    
     return gauss_2d
 
 
@@ -123,8 +136,12 @@ def gaussLP_2D_freq(cutoff_freq, k_size, scale_parmeter = 1):
 
 def freqency_dom_filter(image,filter):
     """
-	The function will take  arguments (image, filter), and return the filtered_image array"""	
-	########Your code here#############
-    #    
-    raise NotImplementedError('Please implement `freqency_dom_filter` function in `A1_template.py`' )
+	The function will take  arguments (image, filter), and return the filtered_image array
+    """	
+    filter = np.fft.ifftshift(filter)
+    filtered_image = np.zeros(shape=(image.shape[0], image.shape[1], image.shape[2]))
+    for z in range(image.shape[-1]):
+        channel = image[:,:,z]
+        freq_channel = np.fft.fft2(channel)
+        filtered_image[:,:,z] = np.fft.ifft2(np.multiply(freq_channel, filter))
     return filtered_image
