@@ -87,20 +87,41 @@ def spatial_dom_filter(image, filter):
     # Save the width of the filter kernel
     kernel_width = filter.shape[0]
 
-    # Create array of zeroes to store filtered values
-    filtered_image = np.zeros(shape=(image.shape[0], image.shape[1], image.shape[2]))
-    # Added padding to the image to account for kernel overlap
-    padding = int((kernel_width - 1) / 2)
-    padded_image = np.pad(image,
-                   ((padding, padding), (padding, padding), (0,0)))
-
-    # Iterate through the colour channels of the image
-    for z in range(image.shape[-1]):
-        channel = padded_image[:,:,z]
+    # Check whether the image is grayscale
+    if(len(image.shape) < 3):
+        # Create array of zeroes to store filtered values
+        filtered_image = np.zeros(shape=(image.shape[0], image.shape[1]))
+        # Added padding to the image to account for kernel overlap
+        padding = int((kernel_width - 1) / 2)
+        padded_image = np.pad(image,
+                        ((padding, padding), (padding, padding), (0,0)))
+        # Iterate over x&y coordinates of the image array
         for x in range(image.shape[0]):
             for y in range(image.shape[1]):
+                # Take a sample of the image the same size as the filter
                 sample = channel[x:x+kernel_width, y:y+kernel_width]
-                filtered_image[x, y, z] = np.sum(np.multiply(sample, filter))
+                # Convolve the image and filter together to apply the blur
+                filtered_image[x, y] = np.sum(np.multiply(sample, filter))
+    elif(len(image.shape) == 3):
+        # Create array of zeroes to store filtered values
+        filtered_image = np.zeros(shape=(image.shape[0], image.shape[1], image.shape[2]))
+        # Added padding to the image to account for kernel overlap
+        padding = int((kernel_width - 1) / 2)
+        padded_image = np.pad(image,
+                    ((padding, padding), (padding, padding), (0,0)))
+
+        # Iterate through the colour channels of the image
+        for z in range(image.shape[-1]):
+            # Seperate the image into its RGB colour channels
+            channel = padded_image[:,:,z]
+            # Iterate over x&y coordinates of the image colour channel
+            for x in range(image.shape[0]):
+                for y in range(image.shape[1]):
+                    # Take a sample of the image the same size as the filter
+                    sample = channel[x:x+kernel_width, y:y+kernel_width]
+                    filtered_image[x, y, z] = np.sum(np.multiply(sample, filter))
+    else:
+        raise Exception("Image type not supported")
     
     return filtered_image
 
