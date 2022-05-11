@@ -23,4 +23,12 @@ This technical report seeks to discuss whether, using only video cameras, autono
 
 # Literature Review
 
+# Image Processing Implementation
+The fundamental functions to perform image processing in the spatial and frequency domain were implemented alongside this report. A Gaussian blur was used as the example kernel.
+
+## Summary and Analysis
+Noteable discoveries in computational time, padding types and complexity are summarised below.
+
+### Computational Time of Spatial vs Frequency Domain
+
 # References
