@@ -30,5 +30,6 @@ The fundamental functions to perform image processing in the spatial and frequen
 Noteable discoveries in computational time, padding types and complexity are summarised below.
 
 ### Computational Time of Spatial vs Frequency Domain
+During analysis, the spatial domain was found to be significantly slower in computation time. For the same colour image over a range of cutoff frequencies, the frequency domain proved consistently to be 5 times faster on average. This increased efficiency can be seen in greater detail when using images of larger resolutions, as seen in the test notebook and in the below figure. 
 
 # References
