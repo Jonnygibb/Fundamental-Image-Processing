@@ -1,7 +1,7 @@
 ---
 title: Investigation and Analysis of Fundamental Image Processing Concepts
 author: Jonathan Gibbons
-date: 10th May 2022
+date: 15th May 2022
 toc: true
 numbersections: true
 geometry: margin=2.5cm
@@ -11,7 +11,7 @@ csl: elsevier-harvard.csl
 header-includes: |
     \usepackage{fancyhdr}
     \pagestyle{fancy}
-    \lfoot{Draft Prepared: 3rd May 2022}
+    \lfoot{15th May 2022}
     \rfoot{Page \thepage}
 ---
 
@@ -97,5 +97,7 @@ During analysis, the frequency domain was found to be significantly faster in co
 
 # Conclusion
 Having researched the commercial uses of image processing and its ability to change the way we travel as well as fundamentals of image processing algorithms, its clear that the field will continue to progress as sensors and computational power increases. 
+
+Word Count: 1211 words
 
 # References
