@@ -32,7 +32,7 @@ Infrared cameras are more than capable at working in poor visibility and at long
 
 An established sensor used in autonomous driving systems is that of RADAR. Being cheap, long range and reliable in many conditions, RADAR has already seen use in ADAS systems. Using a similar Time of flight system to LiDAR, where the time taken for a signal to return from an object calculates distance, RADAR offers a versatile method of understanding a physical space. However the downside of low resolution makes RADAR unable to be a one-size-fits-all solution to autonomous driving [@petit_2022].
 
-While sensors of visible and infrared light, when paired together, manage to handle many aspects of autonomous driving, both sensors have limitations that leave them vulnerable in certain situations. To reach truly autonomous level 6 vehicles, a combination of sensors across the electromagnetic spectrum including LiDAR and RADAR must be involved to make sure that the safety of those inside and outside the vehicle is increased. LiDAR sensors are still rather expensive the industry may have to wait before autonomous vehicles with a full roster of sensors can be made commercially.
+While sensors of visible and infrared light, when paired together, manage to handle many aspects of autonomous driving, both sensors have limitations that leave them vulnerable in certain situations. To reach truly autonomous level 6 vehicles, a combination of sensors across the electromagnetic spectrum including LiDAR and RADAR must be involved to make sure that the safety of those inside and outside the vehicle is increased. LiDAR sensors are still rather expensive so the automotive industry may have to wait before autonomous vehicles with a full roster of sensors can be made commercially.
 
 # Image Processing Implementation
 The fundamental functions to perform image processing in the spatial and frequency domain were implemented alongside this report. A Gaussian blur was used as the example kernel.
@@ -84,13 +84,13 @@ for row in range(k):
         # Set each cell equal to the pythagorian distance from the center of the matrix
         distance[row, column] = np.sqrt((row - rows / 2)**2 + (column - columns / 2)**2)
         # Apply the gaussian distribution formula to the distance matrix
-        distance[row, column] = np.exp(-((distance[i,j]**2)/(2*cutoff_freq**2)))
+        distance[row, column] = np.exp(-((distance[row,column]**2)/(2*cutoff_freq**2)))
 gauss_spatial = distance
 return gauss_spatial
 ```
 
 ### Use of Padding in the Frequency Domain
-Padding then Forier transforming an image increases the total time that signals are recorded [@7676243]. This added time improves the frequency resolution and interpolation of the image in the Forier domain. The observed result in this implementation is that the produced blurred image appears same with or without padding applied however the intensity of the resultant image is greater without padding than with. This effect can be seen in the test notebook.
+Padding then Forier transforming an image increases the total time that signals are recorded [@7676243]. This added time improves the frequency resolution and interpolation of the image in the Forier domain. The observed result in this implementation is that the produced blurred image appears the same with or without padding applied however the intensity of the resultant image is greater without padding than with. This effect can be seen in the test notebook.
 
 ### Computational Time of Spatial vs Frequency Domain
 During analysis, the frequency domain was found to be significantly faster in computation time. For the same colour image over a range of cutoff frequencies, the frequency domain proved consistently to be 5 times faster on average. This increased efficiency can be seen in greater detail when using images of larger resolutions [@Gonzalez2020-zx]. The car image in the test notebook is up to 7 times faster in the frequency domain than the spatial domain. The relationship can be explained by the complexity of spacial filtering vs frequency filtering. In a simplified implementation, with image size M by N and kernel size K by L, the spatial domain has complexity O(mnkl) whereas the frequency domain has smaller computational complexity O(mn log(mn) + mn) [@Shreekanth2017].
@@ -98,6 +98,6 @@ During analysis, the frequency domain was found to be significantly faster in co
 # Conclusion
 Having researched the commercial uses of image processing and its ability to change the way we travel as well as fundamentals of image processing algorithms, its clear that the field will continue to progress as sensors and computational power increases. 
 
-Word Count: 1211 words
+Word Count: 1214 words
 
 # References
