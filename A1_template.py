@@ -130,15 +130,8 @@ def gaussLP_2D_freq(cutoff_freq, k_size, scale_parameter = 1):
         for column in range(columns):
             # Set each cell equal to the pythagorian distance from the center of the matrix
             distance_matrix[row, column] = np.sqrt((row - rows / 2)**2 + (column - columns / 2)**2)
-
-    # Create another array of zeroes, again of the same size as the image
-    gauss_2d = np.zeros((rows, columns))
-    # Iterate over each cell of the zero matrix
-    for i in range(rows):
-        for j in range(columns):
-            # Apply the gaussian distribution formula to the distance matrix
-            # Multiply by the scale_parameter as per the assingment brief
-            gauss_2d[i,j] = scale_parameter * np.exp(-((distance_matrix[i,j]**2)/(2*cutoff_freq**2)))
+            distance_matrix[row,column] = scale_parameter * np.exp(-((distance_matrix[row,column]**2)/(2*cutoff_freq**2)))
+    gauss_2d = distance_matrix
     plt.subplot(121),plt.imshow(gauss_2d)
     
     return gauss_2d
