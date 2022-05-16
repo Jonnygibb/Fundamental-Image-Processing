@@ -1,6 +1,6 @@
 ---
 title: Investigation and Analysis of Fundamental Image Processing Concepts
-author: Jonathan Gibbons
+author: u1921415
 date: 15th May 2022
 toc: true
 numbersections: true
