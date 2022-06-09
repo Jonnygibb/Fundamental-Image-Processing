@@ -2,6 +2,9 @@ from torch.utils.data import Dataset
 from PIL import Image
 import os
 import numpy as np
+import config
+from torch.utils.data import Dataset, DataLoader
+from torchvision.utils import save_image
 
 class ExposedImageDataset(Dataset):
     def __init__(self, root_varied_exposure, root_ground_truth, transform=None):
@@ -57,12 +60,15 @@ class ExposedImageDataset(Dataset):
         
         return variable_exposure_image, ground_truth_image
 
+
 if __name__ == "__main__":
-    A = ExposedImageDataset("WM391_PMA_dataset\\training\\INPUT_IMAGES", "WM391_PMA_dataset\\training\\GT_IMAGES")
-    test_index = 200000
-    image0, image1 = A.get_file_name(test_index)
-    print(image0,image1)
-    image2, image3 = A.compare_indices(test_index)
-    print(image2, image3)
-    image4, image5 = A.__getitem__(test_index)
-    print(image4, image5)
+    dataset = ExposedImageDataset(config.VARIABLE_EXPOSURE, config.GROUND_TRUTH)
+    loader = DataLoader(dataset, batch_size=5)
+    for x, y in loader:
+        print(x.shape)
+        print(y.shape)
+        #save_image(x, "x.png")
+        #save_image(y, "y.png")
+        import sys
+
+        sys.exit()
