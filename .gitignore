@@ -122,7 +122,11 @@ venv.bak/
 
 #CNN images
 WM391_PMA_dataset
+evaluation/
 
+# Model weights
+disc.pth.tar
+gen.pth.tar
 
 # mypy
 .mypy_cache/
