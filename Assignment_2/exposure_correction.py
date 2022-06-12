@@ -28,11 +28,11 @@ DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 TRAIN_DIR = "WM391_PMA_dataset\\training"
 VAL_DIR = "WM391_PMA_dataset\\validation"
 # Determines how quickly the gradient is travelled for the machine learning model
-LEARNING_RATE = 2e-4
+LEARNING_RATE = 1e-4
 # Sets the number of images that are sent to the device per iteration
-BATCH_SIZE = 16
+BATCH_SIZE = 64
 # Number of cpu threads used
-NUM_WORKERS = 2
+NUM_WORKERS = 8
 # Size of the images used to train the model
 IMAGE_SIZE = 256
 # Specifies the number of channels in the images input to the model
@@ -44,7 +44,7 @@ NUM_EPOCHS = 300
 # Load model weights & parameters from checkpoint state
 LOAD_MODEL = False
 # Save model weights & parameters to checkpoint file
-SAVE_MODEL = False
+SAVE_MODEL = True
 # Set file location for the discriminator and generator checkpoint files
 CHECKPOINT_DISC = "disc.pth.tar"
 CHECKPOINT_GEN = "gen.pth.tar"
