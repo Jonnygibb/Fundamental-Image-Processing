@@ -17,6 +17,8 @@ import os
 import numpy as np
 from torch.utils.data import Dataset, DataLoader
 
+torch.backends.cudnn.benchmark = True
+
 
 # Set Parameters to use with the neural net
 
@@ -453,7 +455,7 @@ def main():
             CHECKPOINT_DISC, disc, opt_disc, LEARNING_RATE,
         )
 
-    train_dataset = ExposedImageDataset(root_dir=TRAIN_DIR)
+    train_dataset = ExposedImageDataset(root_dir=TRAIN_DIR, transform_both=both_transform, transform_varied_exposure=transform_varied_exposure, transform_ground_truth=transform_ground_truth)
     train_loader = DataLoader(
         train_dataset,
         batch_size=BATCH_SIZE,
@@ -462,7 +464,7 @@ def main():
     )
     g_scaler = torch.cuda.amp.GradScaler()
     d_scaler = torch.cuda.amp.GradScaler()
-    val_dataset = ExposedImageDataset(root_dir=VAL_DIR)
+    val_dataset = ExposedImageDataset(root_dir=VAL_DIR, transform_both=both_transform, transform_varied_exposure=transform_varied_exposure, transform_ground_truth=transform_ground_truth)
     val_loader = DataLoader(val_dataset, batch_size=1, shuffle=False)
 
     for epoch in range(NUM_EPOCHS):
@@ -478,6 +480,4 @@ def main():
 
 
 if __name__ == "__main__":
-    #torch.backends.cudnn.benchmark = True
-    #main()
-    test_dataset()
+    main()
