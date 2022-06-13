@@ -219,9 +219,9 @@ def test_dataset():
         TRAIN_DIR,
         # Pass in image transforms for both images, just the varied exposure and
         # just the ground truth.
-        #transform_both=both_transform,
-        #transform_varied_exposure=transform_varied_exposure,
-        #transform_ground_truth=transform_ground_truth
+        transform_both=both_transform,
+        transform_varied_exposure=transform_varied_exposure,
+        transform_ground_truth=transform_ground_truth
         )
     # Create a dataloader from the variable exposure dataset
     loader = DataLoader(dataset, batch_size=5)
