@@ -63,9 +63,9 @@ Binary cross entropy is an especially useful loss function in the field of class
 
 ## L1 Loss
 
+L1 loss or the absolute error loss is the absolute difference between the actual value and a prediction. This loss is calculated for every image in the dataset compared to the image the generator has made. Adding the L1 loss function as a penalty to the generator forces the generator to produce results closer to the ground truth images. In this implementation, L1 loss is chosen over L2 loss since L1 loss produces less blurry generated images [@10.1007/978-3-030-68449-5_36].
+
 # Training and testing process followed
-
-
 
 # Model evaluation metric/s used
 
