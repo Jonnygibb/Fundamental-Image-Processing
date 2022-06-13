@@ -10,6 +10,8 @@ bibliography: references.bib
 csl: elsevier-harvard.csl
 header-includes: |
     \usepackage{fancyhdr}
+    \usepackage{caption}
+    \usepackage{subcaption}
     \pagestyle{fancy}
     \lfoot{12th June 2022}
     \rfoot{Page \thepage}
@@ -45,9 +47,10 @@ For the discriminator, a PatchGAN is used. A PatchGAN is a comparably small arra
 
 To increase the variety of training data, augmentations were applied to the images. During training, a horizontal flip was applied at a probability of 0.5. Another transformation was the addition of colour jitter at a probability of 0.2 to increase the range of colours the model experiences. To aid in training, a normalisation transform was applied giving every training image a level of blur. The ground truth images however only recieved the same normalised blur but neither the colours nor the orientation augmentations since they are the target for the model to work towards.
 
-![Training image with only normalisation](images/base_image.png){ height=256px }
-![Training image with added colour jitter](images/colour_jitter.png){ height=256px }
-![Training image with horizontal flip applied](images/horizontal_flip.png){ height=256px }
+![Training image with only normalisation](images/base_image.png){ height=220px }\ ![Training image with added colour jitter](images/colour_jitter.png){ height=220px }\ ![Training image with horizontal flip applied](images/horizontal_flip.png){ height=220px }
+\begin{figure}[!h]
+\caption{Examples of image augmentations on training images. Left: Only normalisation applied. Center: Image with added colour jitter. Right: Image with horizontal flip applied}
+\end{figure}
 
 
 # Loss Functions
