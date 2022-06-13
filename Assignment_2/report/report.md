@@ -45,7 +45,20 @@ For the discriminator, a PatchGAN is used. A PatchGAN is a comparably small arra
 
 To increase the variety of training data, augmentations were applied to the images. During training, a horizontal flip was applied at a probability of 0.5. Another transformation was the addition of colour jitter at a probability of 0.2 to increase the range of colours the model experiences. To aid in training, a normalisation transform was applied giving every training image a level of blur. The ground truth images however only recieved the same normalised blur but neither the colours nor the orientation augmentations since they are the target for the model to work towards.
 
-# Loss function/s used
+![Training image with only normalisation](images/base_image.png){ height=256px }
+![Training image with added colour jitter](images/colour_jitter.png){ height=256px }
+![Training image with horizontal flip applied](images/horizontal_flip.png){ height=256px }
+
+
+# Loss Functions
+
+The nature and architecture of convolutional neural network implemented alongside this report requires the use of two loss functions, one for the generator and one for the discriminator. For the discriminator, a Binary Cross Entropy (BCE) loss function is used however, for the generator a L1 loss function is chosen. 
+
+## Binary Cross Entropy
+
+Binary cross entropy is an especially useful loss function in the field of classification. This makes it ideal for training the discriminator since it will help to classify an image into the categories of real and fake or class 1 and 0 respectivly [@Ketkar2017]. The function works by taking in a probability that an image is real from the generator and a target state. The target state in this case is 1 representing the class real since the generator is trying to output real images and the discriminator should feedback to what extent it believes the image it creates really is. The result of Binary Cross Entropy loss is the sum of probabilities showing how different the input images are compared to what is expected i.e. A real image [@Michelucci2019].
+
+## L1 Loss
 
 # Training and testing process followed
 

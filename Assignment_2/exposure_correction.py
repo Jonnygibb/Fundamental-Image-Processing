@@ -42,7 +42,7 @@ LAMBDA_GP = 10
 # Number of times the model is trained with the entire training dataset
 NUM_EPOCHS = 300
 # Load model weights & parameters from checkpoint state
-LOAD_MODEL = False
+LOAD_MODEL = True
 # Save model weights & parameters to checkpoint file
 SAVE_MODEL = True
 # Set file location for the discriminator and generator checkpoint files
@@ -465,7 +465,7 @@ def main():
     g_scaler = torch.cuda.amp.GradScaler()
     d_scaler = torch.cuda.amp.GradScaler()
     val_dataset = ExposedImageDataset(root_dir=VAL_DIR, transform_both=both_transform, transform_varied_exposure=transform_varied_exposure, transform_ground_truth=transform_ground_truth)
-    val_loader = DataLoader(val_dataset, batch_size=1, shuffle=False)
+    val_loader = DataLoader(val_dataset, batch_size=1, shuffle=True)
 
     for epoch in range(NUM_EPOCHS):
         train_fn(
