@@ -39,7 +39,7 @@ In this implementation, an image of size 256x256 is shrunk down to a 1x1 feature
 
 For the discriminator, a PatchGAN is used. A PatchGAN is a comparably small array of values that represent whether a corresponding area or patch of an image is real or fake [@DBLP:journals/corr/abs-1803-07422]. This relationship between patch and image can be visalized better in figure 1. By utilising this technique, arbitrarily large images can be processed. Other benefits such as fewer parameters and faster runtime can be realised using this method [@DBLP:journals/corr/IsolaZZE16].
 
-![Test image](images/patchgan-image.png "This is a test image")
+![Demonstration of PatchGAN generation [@DBLP:journals/corr/abs-1803-07422]](images/patchgan-image.png){ height=350px }
 
 # Input Manipulations
 
