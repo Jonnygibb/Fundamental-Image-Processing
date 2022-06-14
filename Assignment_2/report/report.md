@@ -10,6 +10,8 @@ bibliography: references.bib
 csl: elsevier-harvard.csl
 header-includes: |
     \usepackage{fancyhdr}
+    \usepackage{caption}
+    \usepackage{subcaption}
     \pagestyle{fancy}
     \lfoot{12th June 2022}
     \rfoot{Page \thepage}
@@ -33,17 +35,35 @@ The 'generative' part of the GAN's structure is a generator model, whose role is
 
 ## Technical Implementation
 
-To create new images from an input image, the generator takes advantage of a U-net style, encoder-decoder design. U-net is an architecture that effectivly downsamples and then upsamples an image. It is a fully connected, convoultional neural net that takes advantage of stride convolution and max-pooling. It also includes skip connections that make localized image information glabally available in the symmetric model, increasing the predictive ability of the generator [@Gayathri2021].
+To create new images from an input image, the generator takes advantage of a U-net style, encoder-decoder design. U-net is an architecture that effectivly downsamples and then upsamples an image. It is a fully connected, convoultional neural net that takes advantage of stride convolution and max-pooling. It also includes skip connections that make localized image information glabally available in the symmetric model, increasing the predictive ability of the generator [@Gayathri2021]. The downscaling or encoding section attempts to gather context from the input whilst the decoder works to identify areas of interest during its upscaling [@Ali_2022].
 
 In this implementation, an image of size 256x256 is shrunk down to a 1x1 feature map before being blown up again back into original size. This is performed by six layers down and six up which convolve the image. Stride is set at 2 in order to downscale and upscale the image. During downscaling, a leaky relu function is used
 
 For the discriminator, a PatchGAN is used. A PatchGAN is a comparably small array of values that represent whether a corresponding area or patch of an image is real or fake [@DBLP:journals/corr/abs-1803-07422]. This relationship between patch and image can be visalized better in figure 1. By utilising this technique, arbitrarily large images can be processed. Other benefits such as fewer parameters and faster runtime can be realised using this method [@DBLP:journals/corr/IsolaZZE16].
 
-![Test image](images/patchgan-image.png "This is a test image")
+![Demonstration of PatchGAN generation [@DBLP:journals/corr/abs-1803-07422]](images/patchgan-image.png){ height=350px }
 
-# Input output manipulations
+# Input Manipulations
 
-# Loss function/s used
+To increase the variety of training data, augmentations were applied to the images. During training, a horizontal flip was applied at a probability of 0.5. Another transformation was the addition of colour jitter at a probability of 0.2 to increase the range of colours the model experiences. To aid in training, a normalisation transform was applied giving every training image a level of blur. The ground truth images however only recieved the same normalised blur but neither the colours nor the orientation augmentations since they are the target for the model to work towards.
+
+![Training image with only normalisation](images/base_image.png){ height=220px }\ ![Training image with added colour jitter](images/colour_jitter.png){ height=220px }\ ![Training image with horizontal flip applied](images/horizontal_flip.png){ height=220px }
+\begin{figure}[!h]
+\caption{Examples of image augmentations on training images. Left: Only normalisation applied. Center: Image with added colour jitter. Right: Image with horizontal flip applied}
+\end{figure}
+
+
+# Loss Functions
+
+The nature and architecture of convolutional neural network implemented alongside this report requires the use of two loss functions, one for the generator and one for the discriminator. For the discriminator, a Binary Cross Entropy (BCE) loss function is used however, for the generator a L1 loss function is chosen. 
+
+## Binary Cross Entropy
+
+Binary cross entropy is an especially useful loss function in the field of classification. This makes it ideal for training the discriminator since it will help to classify an image into the categories of real and fake or class 1 and 0 respectivly [@Ketkar2017]. The function works by taking in a probability that an image is real from the generator and a target state. The target state in this case is 1 representing the class real since the generator is trying to output real images and the discriminator should feedback to what extent it believes the image it creates really is. The result of Binary Cross Entropy loss is the sum of probabilities showing how different the input images are compared to what is expected i.e. A real image [@Michelucci2019].
+
+## L1 Loss
+
+L1 loss or the absolute error loss is the absolute difference between the actual value and a prediction. This loss is calculated for every image in the dataset compared to the image the generator has made. Adding the L1 loss function as a penalty to the generator forces the generator to produce results closer to the ground truth images. In this implementation, L1 loss is chosen over L2 loss since L1 loss produces less blurry generated images [@10.1007/978-3-030-68449-5_36].
 
 # Training and testing process followed
 
