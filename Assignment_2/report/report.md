@@ -37,7 +37,7 @@ The 'generative' part of the GAN's structure is a generator model, whose role is
 
 To create new images from an input image, the generator takes advantage of a U-net style, encoder-decoder design. U-net is an architecture that effectivly downsamples and then upsamples an image. It is a fully connected, convoultional neural net that takes advantage of stride convolution and max-pooling. It also includes skip connections that make localized image information glabally available in the symmetric model, increasing the predictive ability of the generator [@Gayathri2021]. The downscaling or encoding section attempts to gather context from the input whilst the decoder works to identify areas of interest during its upscaling [@Ali_2022].
 
-In this implementation, an image of size 256x256 is shrunk down to a 1x1 feature map before being blown up again back into original size. This is performed by six layers down and six up which convolve the image. Stride is set at 2 in order to downscale and upscale the image. During downscaling, a leaky relu function is used
+In this implementation, an image of size 256x256 is shrunk down to a 1x1 feature map before being blown up again back into original size. This is performed by six layers down and six up which convolve the image. Stride is set at 2 in order to downscale and upscale the image. For activation functions, ReLU is used [@https://doi.org/10.48550/arxiv.1511.06434]. 
 
 For the discriminator, a PatchGAN is used. A PatchGAN is a comparably small array of values that represent whether a corresponding area or patch of an image is real or fake [@DBLP:journals/corr/abs-1803-07422]. This relationship between patch and image can be visalized better in figure 1. By utilising this technique, arbitrarily large images can be processed. Other benefits such as fewer parameters and faster runtime can be realised using this method [@DBLP:journals/corr/IsolaZZE16].
 
@@ -76,6 +76,8 @@ The model was trained from scratch for 150 epochs to produce the results availab
 
 
 # Analysis and Conclusions
+
+The performance of the model can be seen in the exmaple images below. In general, the model is able to successfully correct the brightness and colour in the images it evaluates. Some of the best examples can be seen in figure x where the model has taken the image from totally underexposed to parity with it's respective ground truth image. Despite this, the model can struggles with artifacts being left in images which depreiciates the quality of its output. In figure y, the model manages to increase/decrease the exposure but the top right of the image experiences artifacting. With additional training time, we should expect the model to reduce these artifacts and thus increase its ability to generalize exposure correction.
 
 # Description of possible alternative approaches
 
