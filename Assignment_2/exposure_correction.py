@@ -16,6 +16,7 @@ from PIL import Image
 import os
 import numpy as np
 from torch.utils.data import Dataset, DataLoader
+import matplotlib.pyplot as plt
 
 torch.backends.cudnn.benchmark = True
 
@@ -44,7 +45,9 @@ NUM_EPOCHS = 300
 # Load model weights & parameters from checkpoint state
 LOAD_MODEL = False
 # Save model weights & parameters to checkpoint file
-SAVE_MODEL = True
+SAVE_MODEL = False
+# Toggle displaying the graph of loss values
+SHOW_LOSS = True
 # Set file location for the discriminator and generator checkpoint files
 CHECKPOINT_DISC = "disc.pth.tar"
 CHECKPOINT_GEN = "gen.pth.tar"
@@ -399,8 +402,7 @@ def test_generator():
 
 
 
-def train_fn(disc, gen, loader, opt_disc, opt_gen, l1_loss, bce, g_scaler, d_scaler,):
-    
+def train_fn(disc, gen, loader, opt_disc, opt_gen, l1_loss, bce, g_scaler, d_scaler, gen_loss):
     loop = tqdm(loader, leave=True)
     for idx, (x, y) in enumerate(loop):
         x = x.to(DEVICE)
@@ -437,6 +439,8 @@ def train_fn(disc, gen, loader, opt_disc, opt_gen, l1_loss, bce, g_scaler, d_sca
                 D_real=torch.sigmoid(D_real).mean().item(),
                 D_fake=torch.sigmoid(D_fake).mean().item(),
             )
+    
+    gen_loss.append(G_loss.detach().to('cpu'))
 
 
 def main():
@@ -466,11 +470,18 @@ def main():
     d_scaler = torch.cuda.amp.GradScaler()
     val_dataset = ExposedImageDataset(root_dir=VAL_DIR, transform_both=both_transform, transform_varied_exposure=transform_varied_exposure, transform_ground_truth=transform_ground_truth)
     val_loader = DataLoader(val_dataset, batch_size=1, shuffle=True)
+    gen_loss=[]
 
     for epoch in range(NUM_EPOCHS):
         train_fn(
-            disc, gen, train_loader, opt_disc, opt_gen, L1_LOSS, BCE, g_scaler, d_scaler,
+            disc, gen, train_loader, opt_disc, opt_gen, L1_LOSS, BCE, g_scaler, d_scaler, gen_loss
         )
+
+        if SHOW_LOSS and epoch % 20 == 0:
+            plt.plot(gen_loss)
+            plt.xlabel("Number of epochs")
+            plt.ylabel("Generator Loss")
+            plt.show()
 
         if SAVE_MODEL and epoch % 5 == 0:
             save_checkpoint(gen, opt_gen, filename=CHECKPOINT_GEN)
