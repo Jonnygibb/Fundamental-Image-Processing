@@ -46,8 +46,8 @@ NUM_EPOCHS = 300
 LOAD_MODEL = False
 # Save model weights & parameters to checkpoint file
 SAVE_MODEL = False
-# Toggle displaying the graph of loss values
-SHOW_LOSS = True
+# Toggle displaying the graph of generator loss values
+SHOW_LOSS = False
 # Set file location for the discriminator and generator checkpoint files
 CHECKPOINT_DISC = "disc.pth.tar"
 CHECKPOINT_GEN = "gen.pth.tar"
@@ -439,7 +439,6 @@ def train_fn(disc, gen, loader, opt_disc, opt_gen, l1_loss, bce, g_scaler, d_sca
                 D_real=torch.sigmoid(D_real).mean().item(),
                 D_fake=torch.sigmoid(D_fake).mean().item(),
             )
-    
     gen_loss.append(G_loss.detach().to('cpu'))
 
 
@@ -483,7 +482,7 @@ def main():
             plt.ylabel("Generator Loss")
             plt.show()
 
-        if SAVE_MODEL and epoch % 5 == 0:
+        if SAVE_MODEL:
             save_checkpoint(gen, opt_gen, filename=CHECKPOINT_GEN)
             save_checkpoint(disc, opt_disc, filename=CHECKPOINT_DISC)
 
