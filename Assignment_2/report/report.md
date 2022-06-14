@@ -73,9 +73,22 @@ The model was trained from scratch for 150 epochs to produce the results availab
 
 # Model evaluation metric/s used
 
-For model evaluation, the loss function for the generator model is plotted here over x epochs of training. The graph shows a clear reduction in loss function output over the course of training, therefore we can conclude the model is learning effeciently and an improvement should be expected in the ability of the generator to make higher quality images that are closer to the ground truth images.
+For model evaluation, the loss function for the generator is plotted in figure 3a over 80 epochs of training. The graph shows a clear reduction in loss function output over the course of training, therefore we can conclude the model is learning effeciently and an improvement should be expected in the ability of the generator to make higher quality images that are closer to the ground truth images. In figure 3b, the loss over the course of one batch forms a downward slope from an initially high loss to a steady loss which backs up the conclusion that the model is training effectivly.
 
-Whilst experimenting with the learning rate of the model, an improvement in performance could be seen from decreasing the rate from 0.0002 to 0.0001. By decreasing the learning rate, the weights of the model were changed less drastically over each epoch, preventing it from passing over the local minima. Figure (graph) also justifies our choice of learning rate since the model learns at a steady rate over each epoch before settling to a lesser gradient.
+![](images/Loss_per_epoch.png){ width=50% }
+![](images/Loss_per_batch.png){ width=50% }
+\begin{figure}[!h]
+\begin{subfigure}[t]{0.5\textwidth}
+\caption{Generator loss over a number of epochs}
+\end{subfigure}
+\hfill
+\begin{subfigure}[t]{0.5\textwidth}
+\caption{Generator loss over a batch of images}
+\end{subfigure}
+\caption{Plots of Generator loss}
+\end{figure}
+
+Whilst experimenting with the learning rate of the model, an improvement in performance could be seen from decreasing the rate from 0.0002 to 0.0001. By decreasing the learning rate, the weights of the model were changed less drastically over each epoch, preventing it from passing over the local minima. Figure 3a also justifies our choice of learning rate since the model learns at a steady rate over each epoch before settling to a lesser gradient. Future experimentation could be performed with the parameters of the model to decrease the loss over the number of epochs in order to further improve the model and increase training speed.
 
 # Analysis and Conclusions
 
