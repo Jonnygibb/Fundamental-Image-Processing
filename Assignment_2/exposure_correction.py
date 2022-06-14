@@ -42,7 +42,7 @@ LAMBDA_GP = 10
 # Number of times the model is trained with the entire training dataset
 NUM_EPOCHS = 300
 # Load model weights & parameters from checkpoint state
-LOAD_MODEL = True
+LOAD_MODEL = False
 # Save model weights & parameters to checkpoint file
 SAVE_MODEL = True
 # Set file location for the discriminator and generator checkpoint files

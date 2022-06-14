@@ -65,11 +65,17 @@ Binary cross entropy is an especially useful loss function in the field of class
 
 L1 loss or the absolute error loss is the absolute difference between the actual value and a prediction. This loss is calculated for every image in the dataset compared to the image the generator has made. Adding the L1 loss function as a penalty to the generator forces the generator to produce results closer to the ground truth images. In this implementation, L1 loss is chosen over L2 loss since L1 loss produces less blurry generated images [@10.1007/978-3-030-68449-5_36].
 
-# Training and testing process followed
+# Training and Testing Process Followed
+
+Included in the trainig dataset were 17,675 input images with varying exposure and corresponding ground truth images, where there were 5 images of varying exposure to every ground truth image. The images were rendered using Adobe Camera Raw to emulate various exposure issues. The images use a relative exposure from -1.5 for very underexposed images through to +1.5 for images that are artificially overexposed [@https://doi.org/10.48550/arxiv.2003.11596], with the full range being -1.5,-1,0,1 and 1.5. Also available were 750 validation photographs following the same format as the training set. For each epoch, the model consumed all input and ground truth images from the training set. Inference was also perfomed on a validation image every epoch to visualise the performance of the model as it learned.
+
+The model was trained from scratch for 150 epochs to produce the results available in the model evaluation. A batch size of 64 was used to take advantage of GPU paralellism to increase the speed of training.
 
 # Model evaluation metric/s used
 
-# Analysis and conclusions
+
+
+# Analysis and Conclusions
 
 # Description of possible alternative approaches
 
