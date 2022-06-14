@@ -244,24 +244,38 @@ def test_dataset():
 
 
 class CNNBlock(nn.Module):
+    """
+    Convolution block class for discriminator.  
+    """
     def __init__(self, in_channels, out_channels, stride):
         super(CNNBlock, self).__init__()
+        # Perform neural net functions in a sequential manner.
         self.conv = nn.Sequential(
+            # Apply 2d convolution on each channel of the image.
             nn.Conv2d(
                 in_channels, out_channels, 4, stride, 1, bias=False, padding_mode="reflect"
             ),
+            # Use a batch normalisation function to keep continuity accross the batches.
             nn.BatchNorm2d(out_channels),
+            # Use a leakyReLU function for the layer activation.
             nn.LeakyReLU(0.2),
         )
 
     def forward(self, x):
+        # Move onto the next node in the network by applying the convolution.
         return self.conv(x)
 
 
 class Discriminator(nn.Module):
+    """
+    Model for the Discriminator. The model is used for determining whether
+    and image is real or fake.
+    """
     def __init__(self, in_channels=3, features=[64, 128, 256, 512]):
         super().__init__()
+        # Create a node for the first layer of the network.
         self.initial = nn.Sequential(
+            # Perform convolution on the first layer of the network.
             nn.Conv2d(
                 in_channels * 2,
                 features[0],
@@ -270,15 +284,21 @@ class Discriminator(nn.Module):
                 padding=1,
                 padding_mode="reflect",
             ),
+            # Use a leakyReLU function for the layer activation.
             nn.LeakyReLU(0.2),
         )
 
+        # Create empty list to save the results of convolution.
         layers = []
+        # Set the channels to the first feature layer.
         in_channels = features[0]
+        # Iterate through the remaining features.
         for feature in features[1:]:
+            # Append the convolution of each layer to the list.
             layers.append(
                 CNNBlock(in_channels, feature, stride=1 if feature == features[-1] else 2),
             )
+            # Set the feature to the next feature.
             in_channels = feature
 
         layers.append(
