@@ -1,8 +1,8 @@
 """
 Author: u1921415
 
-This file contains the model, configuration, utilities and training functions necessary for
-exposure correction of images. 
+This file contains the model, configuration, utilities and training functions
+necessary for exposure correction of images. 
 """
 
 import torch
@@ -28,7 +28,8 @@ DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 # Set path of dataset. Please change as appripriate
 TRAIN_DIR = "WM391_PMA_dataset\\training"
 VAL_DIR = "WM391_PMA_dataset\\validation"
-# Determines how quickly the gradient is travelled for the machine learning model
+# Determines how quickly the gradient is travelled for the
+# machine learning model
 LEARNING_RATE = 1e-4
 # Sets the number of images that are sent to the device per iteration
 BATCH_SIZE = 64
@@ -67,7 +68,9 @@ transform_varied_exposure = a.Compose(
         # Add colour jitter to 20% of the images in the dataset.
         a.ColorJitter(p=0.2),
         # Normalize (blur) the image.
-        a.Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5], max_pixel_value=255.0,),
+        a.Normalize(mean=[0.5, 0.5, 0.5],
+                    std=[0.5, 0.5, 0.5],
+                    max_pixel_value=255.0,),
         # Transform the image to a pytorch tensor.
         ToTensorV2(),
     ]
@@ -77,7 +80,9 @@ transform_varied_exposure = a.Compose(
 transform_ground_truth = a.Compose(
     [
         # Normalize (blur) the image.
-        a.Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5], max_pixel_value=255.0,),
+        a.Normalize(mean=[0.5, 0.5, 0.5],
+                    std=[0.5, 0.5, 0.5],
+                    max_pixel_value=255.0,),
         # Transform the image to a pytorch tensor.
         ToTensorV2(),
     ]
@@ -99,7 +104,8 @@ def save_examples(gen, val_loader, epoch, folder):
     # Disable gradient descent calculation since it is unecessary calculation
     # when performing inference on the model.
     with torch.no_grad():
-        # Use the generator to create a new image given the varied exposure image.
+        # Use the generator to create a new image given the
+        # varied exposure image.
         y_fake = gen(x)
         # Remove normalisation applied to the image originally.
         y_fake = y_fake * 0.5 + 0.5
@@ -151,7 +157,11 @@ class ExposedImageDataset(Dataset):
     overwriting of the datasets __len__ and the __getitem__ methods to return
     the correct size of the dataset and an example from the dataset respectivly.
     """
-    def __init__(self, root_dir, transform_both=None, transform_varied_exposure=None, transform_ground_truth=None):
+    def __init__(self,
+                 root_dir,
+                 transform_both=None,
+                 transform_varied_exposure=None,
+                 transform_ground_truth=None):
         
         # Set paths to image directories
         self.root_dir = root_dir
@@ -171,7 +181,8 @@ class ExposedImageDataset(Dataset):
         self.variable_exposure_len = len(self.variable_exposure_images)
         self.ground_truth_len = len(self.ground_truth_images)
         
-        # Use the variable exposure length since it holds all the training images
+        # Use the variable exposure length since it holds
+        # all the training images
         self.length_dataset = self.variable_exposure_len
 
     def __len__(self):
@@ -181,30 +192,42 @@ class ExposedImageDataset(Dataset):
         # Modulo input index to prevent an index out of range of the dataset
         index = index % self.length_dataset
         variable_exposure_image = self.variable_exposure_images[index]
-        # Floor the ground truth index by 5 since there are 5 exposures for every corresponding ground truth
+        # Floor the ground truth index by 5 since there are 5 exposures
+        # for every corresponding ground truth.
         ground_truth_image = self.ground_truth_images[index // 5]
 
         # Create full path to image
-        variable_exposure_image_path = os.path.join(self.variable_exposure_path, variable_exposure_image)
-        ground_truth_image_path = os.path.join(self.ground_truth_path, ground_truth_image)
+        variable_exposure_image_path = os.path.join(self.variable_exposure_path,
+                                                    variable_exposure_image)
+        ground_truth_image_path = os.path.join(self.ground_truth_path,
+                                               ground_truth_image)
 
         # Open the image as an RGB numpy array
-        variable_exposure_image = np.array(Image.open(variable_exposure_image_path).convert("RGB"))
-        ground_truth_image = np.array(Image.open(ground_truth_image_path).convert("RGB"))
+        variable_exposure_image = np.array(
+            Image.open(variable_exposure_image_path).convert("RGB")
+        )
+        ground_truth_image = np.array(
+            Image.open(ground_truth_image_path).convert("RGB")
+        )
 
         # If there's an image transform for both images, apply the transform.
         if self.transform_both:
-            augentations = self.transform_both(image=variable_exposure_image, image0=ground_truth_image)
+            augentations = self.transform_both(image=variable_exposure_image,
+                                               image0=ground_truth_image)
             variable_exposure_image = augentations["image"]
             ground_truth_image = augentations["image0"]
 
-        # If there's an image transform for the varied exposure image, apply the transform.
+        # If there's an image transform for the varied exposure image,
+        # apply the transform.
         if self.transform_varied_exposure:
-            variable_exposure_image = self.transform_varied_exposure(image=variable_exposure_image)["image"]
+            variable_exposure_image = (self.transform_varied_exposure\
+            (image=variable_exposure_image)["image"])
 
-        # If there's an image transform for the ground truth image, apply the transform.
+        # If there's an image transform for the ground truth image,
+        # apply the transform.
         if self.transform_ground_truth:
-            ground_truth_image = self.transform_varied_exposure(image=ground_truth_image)["image"]
+            ground_truth_image = self.transform_varied_exposure\
+            (image=ground_truth_image)["image"]
 
         return variable_exposure_image, ground_truth_image
 
@@ -212,9 +235,9 @@ class ExposedImageDataset(Dataset):
 def test_dataset():
     """
     Simple test function to ensure dataset working correctly.
-    This snippet should return 5 image pairs (1 varied exposure and 1 ground truth).
-    If everything is working correctly, the varied exposure and ground truth should
-    produce tensors of size 256x256.
+    This snippet should return 5 image pairs (1 varied exposure and
+    1 ground truth).If everything is working correctly, the varied exposure
+    and ground truth should produce tensors of size 256x256.
     """
     # Create a dataset object.
     dataset = ExposedImageDataset(
@@ -230,10 +253,12 @@ def test_dataset():
     loader = DataLoader(dataset, batch_size=5)
     # Simple counter to track number of examples printed.
     count = 0
-    # Get a varied exposure image and respective ground truth image from dataloader.
+    # Get a varied exposure image and respective ground truth image
+    # from dataloader.
     for x, y in loader:
         if(count < 5):
-            # Print the shape of both images. They must be the same size (256x256).
+            # Print the shape of both images. They must be the same
+            # size (256x256).
             print("Variable exposure: {}".format(x.shape))
             print("Ground truth: {}".format(y.shape))
         else:
@@ -253,9 +278,11 @@ class CNNBlock(nn.Module):
         self.conv = nn.Sequential(
             # Apply 2d convolution on each channel of the image.
             nn.Conv2d(
-                in_channels, out_channels, 4, stride, 1, bias=False, padding_mode="reflect"
+                in_channels, out_channels, 4, stride, 1, bias=False,
+                padding_mode="reflect"
             ),
-            # Use a batch normalisation function to keep continuity accross the batches.
+            # Use a batch normalisation function to keep continuity
+            # accross the batches.
             nn.BatchNorm2d(out_channels),
             # Use a leakyReLU function for the layer activation.
             nn.LeakyReLU(0.2),
@@ -296,14 +323,18 @@ class Discriminator(nn.Module):
         for feature in features[1:]:
             # Append the convolution of each layer to the list.
             layers.append(
-                CNNBlock(in_channels, feature, stride=1 if feature == features[-1] else 2),
+                CNNBlock(
+                    in_channels, feature, stride=1 if \
+                    feature == features[-1] else 2
+                ),
             )
             # Set the feature to the next feature.
             in_channels = feature
         # For the first feature, append and convolve the image.
         layers.append(
             nn.Conv2d(
-                in_channels, 1, kernel_size=4, stride=1, padding=1, padding_mode="reflect"
+                in_channels, 1, kernel_size=4, stride=1, padding=1,
+                padding_mode="reflect"
             ),
         )
         # Transform the list of conv layers into a sequence of nodes.
@@ -321,32 +352,52 @@ class Discriminator(nn.Module):
 
 def test_discriminator():
     """
-    Simple test function for discriminator. Tests that the shape of the procued PatchGAN
-    is the correct shape following the convolution layers.
+    Simple test function for discriminator. Tests that the
+    shape of the procued PatchGAN is the correct shape following
+    the convolution layers.
     """
     x = torch.randn((1, 3, 256, 256))
     y = torch.randn((1, 3, 256, 256))
     model = Discriminator(in_channels=3)
     preds = model(x, y)
-    #print(model)
+    # print(model)
     print(preds.shape)
 
 
 class Block(nn.Module):
     """
-    Convolution block for generator model. Creates a generic convoultion that can
-    be used for downscaling and upscaling an image through the U-net.
+    Convolution block for generator model. Creates a generic
+    convoultion that can be used for downscaling and upscaling
+    an image through the U-net.
     """
-    def __init__(self, in_channels, out_channels, down=True, act="relu", use_dropout=False):
+    def __init__(self,
+                 in_channels,
+                 out_channels,
+                 down=True,
+                 act="relu",
+                 use_dropout=False):
         super(Block, self).__init__()
         # Perform a sequence of neural net image transformations
         self.conv = nn.Sequential(
             # Convolve the image channel.
-            nn.Conv2d(in_channels, out_channels, 4, 2, 1, bias=False, padding_mode="reflect")
+            nn.Conv2d(in_channels,
+                      out_channels,
+                      4,
+                      2,
+                      1,
+                      bias=False,
+                      padding_mode="reflect")
             if down
-            # If downscaling, use conv2d however if upscaling transpose instead.
-            else nn.ConvTranspose2d(in_channels, out_channels, 4, 2, 1, bias=False),
-            # Use a batch normalisation function to keep continuity accross the batches.
+            # If downscaling, use conv2d however
+            # if upscaling transpose instead.
+            else nn.ConvTranspose2d(in_channels,
+                                    out_channels,
+                                    4,
+                                    2,
+                                    1,
+                                    bias=False),
+            # Use a batch normalisation function to keep continuity
+            # accross the batches.
             nn.BatchNorm2d(out_channels),
             # Vary activation function based on input parameters.
             nn.ReLU() if act == "relu" else nn.LeakyReLU(0.2),
@@ -378,46 +429,64 @@ class Generator(nn.Module):
             nn.LeakyReLU(0.2),
         )
         # Sequential convolution blocks to shrink the image downwards to 1x1.
-        self.down1 = Block(features, features * 2, down=True, act="leaky", use_dropout=False)
+        self.down1 = Block(features, features * 2, down=True, act="leaky",
+                           use_dropout=False)
         self.down2 = Block(
-            features * 2, features * 4, down=True, act="leaky", use_dropout=False
+            features * 2, features * 4, down=True, act="leaky",
+            use_dropout=False
         )
         self.down3 = Block(
-            features * 4, features * 8, down=True, act="leaky", use_dropout=False
+            features * 4, features * 8, down=True, act="leaky",
+            use_dropout=False
         )
         self.down4 = Block(
-            features * 8, features * 8, down=True, act="leaky", use_dropout=False
+            features * 8, features * 8, down=True, act="leaky",
+            use_dropout=False
         )
         self.down5 = Block(
-            features * 8, features * 8, down=True, act="leaky", use_dropout=False
+            features * 8, features * 8, down=True, act="leaky",
+            use_dropout=False
         )
         self.down6 = Block(
-            features * 8, features * 8, down=True, act="leaky", use_dropout=False
+            features * 8, features * 8, down=True, act="leaky",
+            use_dropout=False
         )
         self.bottleneck = nn.Sequential(
             nn.Conv2d(features * 8, features * 8, 4, 2, 1), nn.ReLU()
         )
 
         # Sequential convolution blocks to transpose the image back to 256x256.
-        self.up1 = Block(features * 8, features * 8, down=False, act="relu", use_dropout=True)
+        self.up1 = Block(
+            features * 8, features * 8, down=False, act="relu",
+            use_dropout=True
+        )
         self.up2 = Block(
-            features * 8 * 2, features * 8, down=False, act="relu", use_dropout=True
+            features * 8 * 2, features * 8, down=False, act="relu",
+            use_dropout=True
         )
         self.up3 = Block(
-            features * 8 * 2, features * 8, down=False, act="relu", use_dropout=True
+            features * 8 * 2, features * 8, down=False, act="relu",
+            use_dropout=True
         )
         self.up4 = Block(
-            features * 8 * 2, features * 8, down=False, act="relu", use_dropout=False
+            features * 8 * 2, features * 8, down=False, act="relu",
+            use_dropout=False
         )
         self.up5 = Block(
-            features * 8 * 2, features * 4, down=False, act="relu", use_dropout=False
+            features * 8 * 2, features * 4, down=False, act="relu",
+            use_dropout=False
         )
         self.up6 = Block(
-            features * 4 * 2, features * 2, down=False, act="relu", use_dropout=False
+            features * 4 * 2, features * 2, down=False, act="relu",
+            use_dropout=False
         )
-        self.up7 = Block(features * 2 * 2, features, down=False, act="relu", use_dropout=False)
+        self.up7 = Block(
+            features * 2 * 2, features, down=False, act="relu",
+            use_dropout=False
+        )
         self.final_up = nn.Sequential(
-            nn.ConvTranspose2d(features * 2, in_channels, kernel_size=4, stride=2, padding=1),
+            nn.ConvTranspose2d(features * 2, in_channels, kernel_size=4,
+                               stride=2, padding=1),
             # Use tanh as the activation function for the output of the U-net.
             nn.Tanh(),
         )
@@ -453,9 +522,8 @@ def test_generator():
     print(preds.shape)
 
 
-
-
-def train(disc, gen, loader, opt_disc, opt_gen, l1_loss, bce, g_scaler, d_scaler, gen_loss):
+def train(disc, gen, loader, opt_disc, opt_gen, l1_loss, bce,
+          g_scaler, d_scaler, gen_loss):
     # Creates a progress bar to visualise the iterations over the dataset.
     loop = tqdm(loader, leave=True)
     for idx, (x, y) in enumerate(loop):
@@ -468,12 +536,14 @@ def train(disc, gen, loader, opt_disc, opt_gen, l1_loss, bce, g_scaler, d_scaler
         with torch.cuda.amp.autocast():
             # Use the generator to create an image.
             y_fake = gen(x)
-            # Allow the discriminator train using the input image and the ground truth.
+            # Allow the discriminator train using the input image and the
+            # ground truth.
             D_real = disc(x, y)
-            # Apply binary cross entropy loss to determine a probability for how 'real'
-            # the image is.
+            # Apply binary cross entropy loss to determine a probability
+            # for how 'real' the image is.
             D_real_loss = bce(D_real, torch.ones_like(D_real))
-            # Allow the discriminator train using the generated image and the input. 
+            # Allow the discriminator train using the generated image
+            # and the input.
             D_fake = disc(x, y_fake.detach())
             # Apply bce again between generated and input image.
             D_fake_loss = bce(D_fake, torch.zeros_like(D_fake))
@@ -501,15 +571,16 @@ def train(disc, gen, loader, opt_disc, opt_gen, l1_loss, bce, g_scaler, d_scaler
 
         # Sets the generator gradient to zero.
         opt_gen.zero_grad()
-        # Compute the backwards gradient based on the discriminator and generator loss.
+        # Compute the backwards gradient based on the discriminator
+        # and generator loss.
         g_scaler.scale(G_loss).backward()
         # Update the parameters of the optimiser based on the gradient descent.
         g_scaler.step(opt_gen)
         g_scaler.update()
 
-
         if idx % 10 == 0:
-            # Every tenth iteration, apply a sigmoid function to the discriminator values.
+            # Every tenth iteration, apply a sigmoid function to
+            # the discriminator values.
             loop.set_postfix(
                 D_real=torch.sigmoid(D_real).mean().item(),
                 D_fake=torch.sigmoid(D_fake).mean().item(),
@@ -523,8 +594,12 @@ def main():
     disc = Discriminator(in_channels=3).to(DEVICE)
     gen = Generator(in_channels=3, features=64).to(DEVICE)
     # Instaciate the optimisers for the discriminator and generator.
-    opt_disc = optim.Adam(disc.parameters(), lr=LEARNING_RATE, betas=(0.5, 0.999),)
-    opt_gen = optim.Adam(gen.parameters(), lr=LEARNING_RATE, betas=(0.5, 0.999))
+    opt_disc = optim.Adam(disc.parameters(),
+                          lr=LEARNING_RATE,
+                          betas=(0.5, 0.999),)
+    opt_gen = optim.Adam(gen.parameters(),
+                         lr=LEARNING_RATE,
+                         betas=(0.5, 0.999))
     # Instanciate the loss functions to local variable.
     BCE = nn.BCEWithLogitsLoss()
     L1_LOSS = nn.L1Loss()
@@ -539,8 +614,14 @@ def main():
             CHECKPOINT_DISC, disc, opt_disc, LEARNING_RATE,
         )
 
-    # Instanciate a training dataset and pass in the paths and image transformations.
-    train_dataset = ExposedImageDataset(root_dir=TRAIN_DIR, transform_both=both_transform, transform_varied_exposure=transform_varied_exposure, transform_ground_truth=transform_ground_truth)
+    # Instanciate a training dataset and pass in the paths
+    # and image transformations.
+    train_dataset = ExposedImageDataset(
+        root_dir=TRAIN_DIR,
+        transform_both=both_transform,
+        transform_varied_exposure=transform_varied_exposure,
+        transform_ground_truth=transform_ground_truth
+    )
     # Use the dataset to create a dataloader to feed images into the model.
     train_loader = DataLoader(
         train_dataset,
@@ -552,20 +633,26 @@ def main():
     g_scaler = torch.cuda.amp.GradScaler()
     d_scaler = torch.cuda.amp.GradScaler()
     # Using the same approach, create a validation dataset and dataloader.
-    val_dataset = ExposedImageDataset(root_dir=VAL_DIR, transform_both=both_transform, transform_varied_exposure=transform_varied_exposure, transform_ground_truth=transform_ground_truth)
+    val_dataset = ExposedImageDataset(
+        root_dir=VAL_DIR,
+        transform_both=both_transform,
+        transform_varied_exposure=transform_varied_exposure,
+        transform_ground_truth=transform_ground_truth
+    )
     val_loader = DataLoader(val_dataset, batch_size=1, shuffle=True)
     # Create an empty list to save loss values for evaluation.
-    gen_loss=[]
+    gen_loss = []
 
     # Train the model for the specified number of epochs.
     for epoch in range(NUM_EPOCHS):
         train(
-            disc, gen, train_loader, opt_disc, opt_gen, L1_LOSS, BCE, g_scaler, d_scaler, gen_loss
+            disc, gen, train_loader, opt_disc, opt_gen, L1_LOSS, BCE, g_scaler,
+            d_scaler, gen_loss
         )
 
         # If showloss is true..
         if SHOW_LOSS and epoch % 20 == 0:
-            #.. plot a graph of loss vs epoch every 20 epochs.
+            # ..plot a graph of loss vs epoch every 20 epochs.
             plt.plot(gen_loss)
             plt.xlabel("Number of epochs")
             plt.ylabel("Generator Loss")
