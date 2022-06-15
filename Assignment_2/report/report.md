@@ -92,7 +92,62 @@ Whilst experimenting with the learning rate of the model, an improvement in perf
 
 # Analysis and Conclusions
 
-The performance of the model can be seen in the exmaple images below. In general, the model is able to successfully correct the brightness and colour in the images it evaluates. Some of the best examples can be seen in figure x where the model has taken the image from totally underexposed to parity with it's respective ground truth image. Despite this, the model can struggles with artifacts being left in images which depreiciates the quality of its output. In figure y, the model manages to increase/decrease the exposure but the top right of the image experiences artifacting. With additional training time, we should expect the model to reduce these artifacts and thus increase its ability to generalize exposure correction.
+The performance of the model can be seen in the exmaple images below. In general, the model is able to successfully correct the brightness in the images it evaluates. Some of the best examples can be seen in figures below. In figure 4 the model has taken the image from totally overexposed to close to it's respective ground truth image. Similarly, when the iamge is very under exposed like in figure 5, the brightness has been raised whilst maintaining pretty good colour accuracy. Despite this, the model can struggle with artifacts being left in images which depreiciates the quality of its output. In figure 6, the model manages to decrease the exposure but the center of the image experiences artifacting. With additional training time, we should expect the model to reduce these artifacts and thus increase its ability to generalize exposure correction.
+
+\newpage
+![](images/input_car.png){ width=33% }
+![](images/generated_car.png){ width=33% }
+![](images/gt_car.jpg){ width=33% }
+\begin{figure}[!h]
+\begin{subfigure}[t]{0.3\textwidth}
+\caption{Input image}
+\end{subfigure}
+\hfill
+\begin{subfigure}[t]{0.3\textwidth}
+\caption{Generated image}
+\end{subfigure}
+\hfill
+\begin{subfigure}[t]{0.3\textwidth}
+\caption{Ground truth image}
+\end{subfigure}
+\caption{Example images using photo of a car}
+\end{figure}
+
+![](images/input_tent.png){ width=33% }
+![](images/generated_tent.png){ width=33% }
+![](images/gt_tent.jpg){ width=33% }
+\begin{figure}[!h]
+\begin{subfigure}[t]{0.3\textwidth}
+\caption{Input image}
+\end{subfigure}
+\hfill
+\begin{subfigure}[t]{0.3\textwidth}
+\caption{Generated image}
+\end{subfigure}
+\hfill
+\begin{subfigure}[t]{0.3\textwidth}
+\caption{Ground truth image}
+\end{subfigure}
+\caption{Example images using photo of a tent}
+\end{figure}
+
+![](images/input_towel.png){ width=33% }
+![](images/generated_towel.png){ width=33% }
+![](images/gt_towel.jpg){ width=33% }
+\begin{figure}[!h]
+\begin{subfigure}[t]{0.3\textwidth}
+\caption{Input image}
+\end{subfigure}
+\hfill
+\begin{subfigure}[t]{0.3\textwidth}
+\caption{Generated image}
+\end{subfigure}
+\hfill
+\begin{subfigure}[t]{0.3\textwidth}
+\caption{Ground truth image}
+\end{subfigure}
+\caption{Example images using photo of a towel}
+\end{figure}
 
 # Description of possible alternative approaches
 
