@@ -300,23 +300,30 @@ class Discriminator(nn.Module):
             )
             # Set the feature to the next feature.
             in_channels = feature
-
+        # For the first feature, append and convolve the image.
         layers.append(
             nn.Conv2d(
                 in_channels, 1, kernel_size=4, stride=1, padding=1, padding_mode="reflect"
             ),
         )
-
+        # Transform the list of conv layers into a sequence of nodes.
         self.model = nn.Sequential(*layers)
 
     def forward(self, x, y):
+        # Concatenate the prediction and PatchGAN in one dimension
         x = torch.cat([x, y], dim=1)
+        # Send the prediction through the initial layer and then
+        # the rest of the model.
         x = self.initial(x)
         x = self.model(x)
         return x
 
 
 def test_discriminator():
+    """
+    Simple test function for discriminator. Tests that the shape of the procued PatchGAN
+    is the correct shape following the convolution layers.
+    """
     x = torch.randn((1, 3, 256, 256))
     y = torch.randn((1, 3, 256, 256))
     model = Discriminator(in_channels=3)
@@ -326,32 +333,51 @@ def test_discriminator():
 
 
 class Block(nn.Module):
+    """
+    Convolution block for generator model. Creates a generic convoultion that can
+    be used for downscaling and upscaling an image through the U-net.
+    """
     def __init__(self, in_channels, out_channels, down=True, act="relu", use_dropout=False):
         super(Block, self).__init__()
+        # Perform a sequence of neural net image transformations
         self.conv = nn.Sequential(
+            # Convolve the image channel.
             nn.Conv2d(in_channels, out_channels, 4, 2, 1, bias=False, padding_mode="reflect")
             if down
+            # If downscaling, use conv2d however if upscaling transpose instead.
             else nn.ConvTranspose2d(in_channels, out_channels, 4, 2, 1, bias=False),
+            # Use a batch normalisation function to keep continuity accross the batches.
             nn.BatchNorm2d(out_channels),
+            # Vary activation function based on input parameters.
             nn.ReLU() if act == "relu" else nn.LeakyReLU(0.2),
         )
 
+        # Instanciate boolean dropout toggle.
         self.use_dropout = use_dropout
+        # Set the dropout rate at 0.5 (50%).
         self.dropout = nn.Dropout(0.5)
+        # Instanciate boolean for if downscaling.
         self.down = down
 
     def forward(self, x):
+        # Perform the covultion block to forward to the next node.
         x = self.conv(x)
         return self.dropout(x) if self.use_dropout else x
 
 
 class Generator(nn.Module):
+    """
+    Model for the generator. A U-net is used to decode and encode the image
+    from 256x256 to 1x1 then back to a 256x256 image.
+    """
     def __init__(self, in_channels=3, features=64):
         super().__init__()
+        # Initial convolution down the U-net.
         self.initial_down = nn.Sequential(
             nn.Conv2d(in_channels, features, 4, 2, 1, padding_mode="reflect"),
             nn.LeakyReLU(0.2),
         )
+        # Sequential convolution blocks to shrink the image downwards to 1x1.
         self.down1 = Block(features, features * 2, down=True, act="leaky", use_dropout=False)
         self.down2 = Block(
             features * 2, features * 4, down=True, act="leaky", use_dropout=False
@@ -372,6 +398,7 @@ class Generator(nn.Module):
             nn.Conv2d(features * 8, features * 8, 4, 2, 1), nn.ReLU()
         )
 
+        # Sequential convolution blocks to transpose the image back to 256x256.
         self.up1 = Block(features * 8, features * 8, down=False, act="relu", use_dropout=True)
         self.up2 = Block(
             features * 8 * 2, features * 8, down=False, act="relu", use_dropout=True
@@ -391,10 +418,12 @@ class Generator(nn.Module):
         self.up7 = Block(features * 2 * 2, features, down=False, act="relu", use_dropout=False)
         self.final_up = nn.Sequential(
             nn.ConvTranspose2d(features * 2, in_channels, kernel_size=4, stride=2, padding=1),
+            # Use tanh as the activation function for the output of the U-net.
             nn.Tanh(),
         )
 
     def forward(self, x):
+        # Feed the previous layer of the U-net into the next.
         d1 = self.initial_down(x)
         d2 = self.down1(d1)
         d3 = self.down2(d2)
@@ -414,6 +443,10 @@ class Generator(nn.Module):
 
 
 def test_generator():
+    """
+    Simple test function for generator. Output should produce a prediciton of
+    shape 256x256.
+    """
     x = torch.randn((1, 3, 256, 256))
     model = Generator(in_channels=3, features=64)
     preds = model(x)
@@ -422,90 +455,129 @@ def test_generator():
 
 
 
-def train_fn(disc, gen, loader, opt_disc, opt_gen, l1_loss, bce, g_scaler, d_scaler, gen_loss):
+def train(disc, gen, loader, opt_disc, opt_gen, l1_loss, bce, g_scaler, d_scaler, gen_loss):
+    # Creates a progress bar to visualise the iterations over the dataset.
     loop = tqdm(loader, leave=True)
     for idx, (x, y) in enumerate(loop):
+        # Send input images to device.
         x = x.to(DEVICE)
+        # Send ground truth to device.
         y = y.to(DEVICE)
 
-        # Train Discriminator
+        # Automatically cast datatypes allowing mixed precision datatypes
         with torch.cuda.amp.autocast():
+            # Use the generator to create an image.
             y_fake = gen(x)
+            # Allow the discriminator train using the input image and the ground truth.
             D_real = disc(x, y)
+            # Apply binary cross entropy loss to determine a probability for how 'real'
+            # the image is.
             D_real_loss = bce(D_real, torch.ones_like(D_real))
+            # Allow the discriminator train using the generated image and the input. 
             D_fake = disc(x, y_fake.detach())
+            # Apply bce again between generated and input image.
             D_fake_loss = bce(D_fake, torch.zeros_like(D_fake))
+            # Average the loss accross input vs target and generated vs target.
             D_loss = (D_real_loss + D_fake_loss) / 2
 
+        # Sets the optimiser gradient to zero.
         disc.zero_grad()
+        # Compute the backwards gradient based on the discriminator loss.
         d_scaler.scale(D_loss).backward()
+        # Update the parameters of the optimiser based on the gradient descent.
         d_scaler.step(opt_disc)
         d_scaler.update()
 
-        # Train generator
+        # Automatically cast datatypes allowing mixed precision datatypes.
         with torch.cuda.amp.autocast():
+            # Calculate the probability that the generated image appears real.
             D_fake = disc(x, y_fake)
+            # Perform binary cross entropy generated and input image.
             G_fake_loss = bce(D_fake, torch.ones_like(D_fake))
+            # Calculate the absolute error loss (L1) for the generator.
             L1 = l1_loss(y_fake, y) * L1_LAMBDA
+            # Sum the loss of the dicriminator and the error loss.
             G_loss = G_fake_loss + L1
 
+        # Sets the generator gradient to zero.
         opt_gen.zero_grad()
+        # Compute the backwards gradient based on the discriminator and generator loss.
         g_scaler.scale(G_loss).backward()
+        # Update the parameters of the optimiser based on the gradient descent.
         g_scaler.step(opt_gen)
         g_scaler.update()
 
+
         if idx % 10 == 0:
+            # Every tenth iteration, apply a sigmoid function to the discriminator values.
             loop.set_postfix(
                 D_real=torch.sigmoid(D_real).mean().item(),
                 D_fake=torch.sigmoid(D_fake).mean().item(),
             )
+    # After each batch, append the loss to the generator loss.
     gen_loss.append(G_loss.detach().to('cpu'))
 
 
 def main():
+    # Instanciate the discriminator and generator on the device.
     disc = Discriminator(in_channels=3).to(DEVICE)
     gen = Generator(in_channels=3, features=64).to(DEVICE)
+    # Instaciate the optimisers for the discriminator and generator.
     opt_disc = optim.Adam(disc.parameters(), lr=LEARNING_RATE, betas=(0.5, 0.999),)
     opt_gen = optim.Adam(gen.parameters(), lr=LEARNING_RATE, betas=(0.5, 0.999))
+    # Instanciate the loss functions to local variable.
     BCE = nn.BCEWithLogitsLoss()
     L1_LOSS = nn.L1Loss()
 
     if LOAD_MODEL:
+        # Load pre trained weights for the generator.
         load_checkpoint(
             CHECKPOINT_GEN, gen, opt_gen, LEARNING_RATE,
         )
+        # Load pre trained weights for the discriminator.
         load_checkpoint(
             CHECKPOINT_DISC, disc, opt_disc, LEARNING_RATE,
         )
 
+    # Instanciate a training dataset and pass in the paths and image transformations.
     train_dataset = ExposedImageDataset(root_dir=TRAIN_DIR, transform_both=both_transform, transform_varied_exposure=transform_varied_exposure, transform_ground_truth=transform_ground_truth)
+    # Use the dataset to create a dataloader to feed images into the model.
     train_loader = DataLoader(
         train_dataset,
         batch_size=BATCH_SIZE,
         shuffle=True,
         num_workers=NUM_WORKERS,
     )
+    # Create a gradient scaler for the generator and discriminator.
     g_scaler = torch.cuda.amp.GradScaler()
     d_scaler = torch.cuda.amp.GradScaler()
+    # Using the same approach, create a validation dataset and dataloader.
     val_dataset = ExposedImageDataset(root_dir=VAL_DIR, transform_both=both_transform, transform_varied_exposure=transform_varied_exposure, transform_ground_truth=transform_ground_truth)
     val_loader = DataLoader(val_dataset, batch_size=1, shuffle=True)
+    # Create an empty list to save loss values for evaluation.
     gen_loss=[]
 
+    # Train the model for the specified number of epochs.
     for epoch in range(NUM_EPOCHS):
-        train_fn(
+        train(
             disc, gen, train_loader, opt_disc, opt_gen, L1_LOSS, BCE, g_scaler, d_scaler, gen_loss
         )
 
+        # If showloss is true..
         if SHOW_LOSS and epoch % 20 == 0:
+            #.. plot a graph of loss vs epoch every 20 epochs.
             plt.plot(gen_loss)
             plt.xlabel("Number of epochs")
             plt.ylabel("Generator Loss")
             plt.show()
 
+        # If save model is toggled, save the model weights after every epoch.
         if SAVE_MODEL:
             save_checkpoint(gen, opt_gen, filename=CHECKPOINT_GEN)
             save_checkpoint(disc, opt_disc, filename=CHECKPOINT_DISC)
 
+        # At the end of every epoch, save an example image to evaluate
+        # the model while it trains.
         save_examples(gen, val_loader, epoch, folder="evaluation")
 
 
