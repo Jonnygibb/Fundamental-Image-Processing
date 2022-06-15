@@ -49,7 +49,10 @@ For the discriminator, a PatchGAN was used. A PatchGAN is a comparably small arr
 
 To increase the variety of training data, augmentations were applied to the images. During training, a horizontal flip was applied at a probability of 0.5. Another transformation was the addition of colour jitter at a probability of 0.2 to increase the range of colours the model experiences. To aid in training, a normalisation transform was applied giving every training image a level of blur. The ground truth images however only received the same normalised blur but neither the colours nor the orientation augmentations since they are the target for the model to work towards.
 
-![Training image with only normalisation](images/base_image.png){ width=0.33 }\ ![Training image with added colour jitter](images/colour_jitter.png){ width=0.33 }\ ![Training image with horizontal flip applied](images/horizontal_flip.png){ width=0.33 }
+\newpage
+![Training image with only normalisation](images/base_image.png){ width=33% }
+![Training image with added colour jitter](images/colour_jitter.png){ width=33% }
+![Training image with horizontal flip applied](images/horizontal_flip.png){ width=33% }
 \begin{figure}[!h]
 \begin{subfigure}[t]{0.3\textwidth}
 \caption{Only normalisation applied.}
@@ -164,5 +167,7 @@ The performance of the model can be seen in the example images below. In general
 # Description of possible alternative approaches
 
 The problem of poor image exposure can be approached in a few other ways. One method is to use a more basic version of image processing. By creating a 3x3 convolution kernel that takes an average of the pixels adjacent to the central pixel, it would be possible to brighten or darken an image depending on its exposure in post processing. Another method would be to continue to process the images manually using photo editing software. However, both alternative approaches require a manual application to the image to correct its exposure. Only the convolutional neural network approach with the aid of a Generative Adversarial Network architecture would be able to correct image exposure without the input from the photographer making the implementation documented in this report a very exciting step in image processing.
+
+Word Count: 1631 words
 
 # References
